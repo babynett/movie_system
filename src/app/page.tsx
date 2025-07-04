@@ -1,0 +1,26 @@
+import React from "react";
+import Movies from "../components/main_components/Movies";
+import Navbar from "../components/main_components/Navbar";
+import movies from "./interface/users";
+import SparkleTitle from "../components/designFont/SparkleTitle";
+
+function page() {
+  return (
+    <>
+      <div className="flex justify-center md:p-5 relative z-10">
+        <Navbar />
+      </div>
+
+      <SparkleTitle />
+      <div className="flex justify-center md:p-20">
+        <div className="grid grid-cols-4 gap-5">
+          {movies.map((movie) => (
+            <Movies key={movie.id} movie={movie} />
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default page;
