@@ -75,19 +75,25 @@ export default function NavigationMenuDemo() {
                   </a>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/docs" title="Recommended Movies">
+              <ListItem href="/recommended" title="Recommended Movies">
                 Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut,
                 placeat dolore! Ratione iure reiciendis porro officia quae?
                 Veritatis assumenda nisi sequi inventore at quaerat et obcaecati
                 laudantium! Aperiam, pariatur molestiae.
               </ListItem>
-              <ListItem href="/docs/installation" title="Installation">
+              <ListItem
+                href="/docs/installation"
+                title="Movies you might also like"
+              >
                 Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut,
                 placeat dolore! Ratione iure reiciendis porro officia quae?
                 Veritatis assumenda nisi sequi inventore at quaerat et obcaecati
                 laudantium! Aperiam, pariatur molestiae.{" "}
               </ListItem>
-              <ListItem href="/docs/primitives/typography" title="Typography">
+              <ListItem
+                href="/docs/primitives/typography"
+                title="People's Reviews"
+              >
                 Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut,
                 placeat dolore! Ratione iure reiciendis porro officia quae?
                 Veritatis assumenda nisi sequi inventore at quaerat et obcaecati
@@ -98,7 +104,7 @@ export default function NavigationMenuDemo() {
         </NavigationMenuItem>
 
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Lorem</NavigationMenuTrigger>
+          <NavigationMenuTrigger>My Favorites</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[200px] gap-4">
               <li>

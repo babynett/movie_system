@@ -7,10 +7,6 @@ import SparkleTitle from "../components/designFont/SparkleTitle";
 function page() {
   return (
     <>
-      <div className="flex justify-center md:p-5 relative z-10">
-        <Navbar />
-      </div>
-
       <SparkleTitle />
       <div className="flex justify-center md:p-20">
         <div className="grid grid-cols-4 gap-5">
