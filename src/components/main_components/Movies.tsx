@@ -11,13 +11,8 @@ interface Props {
 }
 
 const Movies = ({ movie }: Props) => {
-  // const [rate, setRate] = useState({ good: 0, bad: 0 }); //setting the value
   const [updateState, setUpdateState] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  // const handleCount = (type: "good" | "bad") => {
-  //   //call the setRate
-  //   setRate((prev) => ({ ...prev, [type]: prev[type] + 1 }));
-  // };
   const showState = () => {
     setUpdateState((prev) => {
       const newState = !prev;
@@ -37,8 +32,6 @@ const Movies = ({ movie }: Props) => {
     );
   }, [updateState, movie.title]); //  Proper dependency tracking
 
-  // const totalRatings = rate.good + rate.bad;
-
   return (
     <>
       <Card className="mb-6 p-6 rounded-2xl shadow-md bg-white hover:shadow-xl transition-shadow duration-300">
@@ -57,7 +50,6 @@ const Movies = ({ movie }: Props) => {
             </span>
           </div>
         </div>
-        {/* <div className="text-center mt-3 text-sm text-gray-500">Total Ratings: {totalRatings}</div> */}
       </Card>
     </>
   );

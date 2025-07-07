@@ -12,9 +12,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <div className="flex justify-center md:p-5 relative z-10">
+        <div className="sticky top-0 z-10 backdrop-blur-lg bg-white/60 flex justify-center md:p-5">
           <Navbar />
         </div>
+
         {children}
       </body>
     </html>
