@@ -1,6 +1,5 @@
 import React from "react";
 import Movies from "../components/main_components/Movies";
-import Navbar from "../components/main_components/Navbar";
 import movies from "./interface/users";
 import SparkleTitle from "../components/designFont/SparkleTitle";
 
