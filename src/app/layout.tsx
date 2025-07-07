@@ -11,11 +11,10 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <body suppressHydrationWarning={true}>
         <div className="sticky top-0 z-10 backdrop-blur-lg bg-white/60 flex justify-center md:p-5">
           <Navbar />
         </div>
-
         {children}
       </body>
     </html>
