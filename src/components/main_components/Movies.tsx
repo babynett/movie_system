@@ -2,7 +2,8 @@
 //child component for movie list
 import { useEffect, useState } from "react";
 // import type { Movies } from "@/app/interface/users";
-// import { Card } from "../ui/card";
+import { Card } from "../ui/card";
+import Image from "next/image";
 // import { Heart } from "phosphor-react";
 //you have to call the Props first
 // interface Props {
@@ -14,6 +15,8 @@ const API_BASE_URL = "https://api.themoviedb.org/3";
 type Movie = {
   id: number;
   title: string;
+  overview: string;
+  poster_path: string;
   // add other properties if needed
 };
 
@@ -57,7 +60,7 @@ const Movies = () => {
           setMovieList([]);
           return;
         }
-        setMovieList(data.results.slice(0, 5));
+        setMovieList(data.results.slice(0, 12));
         // return;
 
         // console.log("Fetched movies:", data);
@@ -93,9 +96,38 @@ const Movies = () => {
 
   return (
     <>
-      {/* <Card className="mb-6 p-6 rounded-2xl shadow-md bg-white hover:shadow-xl transition-shadow duration-300">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">{movie.title}</h2>
-        <p className="text-gray-700 mb-4">{movie.description}</p>
+      <section className="mb-6 p-6 rounded-2xl shadow-md bg-white hover:shadow-xl transition-shadow duration-300">
+        <h1>All Movies</h1>
+        <hr />
+        {isLoading ? <p>Loading...</p> : <p>{errorMessage}</p>}
+        <Card className=" p-6 rounded-2xl shadow-md bg-white hover:shadow-xl transition-shadow duration-300">
+          <h1 className="font-semibold">Most Popular Movies</h1>
+        </Card>
+        <div className="flex justify-center md:p-10">
+          <div className="grid grid-cols-4 gap-5">
+            {movieList.map((movie) => (
+              <Card
+                key={movie.id}
+                className="p-6 rounded-2xl shadow-md bg-white hover:shadow-xl transition-shadow duration-300"
+              >
+                <img
+                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  alt={movie.title}
+                  className="w-full h-auto rounded mb-4"
+                />
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {movie.title}
+                </h2>
+                <p className="text-gray-700 mb-4">{movie.overview}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 
+            <Card className="mb-6 p-6 rounded-2xl shadow-md bg-white hover:shadow-xl transition-shadow duration-300">
+   
         <div className="flex items-center justify-center">
           <div className="flex items-center space-x-2 cursor-pointer">
             <Heart
@@ -110,21 +142,6 @@ const Movies = () => {
                 <MovieCard key={movie.id} movie={movie} />
               ))}
       </Card> */}
-      <section className="all-movies">
-        <h1>All Movies</h1>
-        <hr />
-        {isLoading ? <p>Loading...</p> : <p>{errorMessage}</p>}
-        <h1 className="font-semibold">Most Popular Movies</h1>
-        <ul>
-          <div className="flex justify-center md:p-20">
-            <div className="grid grid-cols-4 gap-5">
-              {movieList.map((movie) => (
-                <li key={movie.id}>{movie.title}</li>
-              ))}
-            </div>
-          </div>
-        </ul>
-      </section>
     </>
   );
 };
