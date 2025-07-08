@@ -18,7 +18,7 @@ export default function SparklesPreview() {
       </div>
 
       <h1 className="md:text-7xl text-3xl lg:text-6xl font-bold text-center text-white md:mb-5">
-        Don't know what movie to watch?
+        Don&apos;t know what movie to watch?
       </h1>
       <p className="md:text-lg text-lg lg:text-xl font-semibold text-center text-white">
         Find some movies the entire world loves

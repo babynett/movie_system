@@ -1,14 +1,9 @@
 "use client";
 //child component for movie list
 import { useEffect, useState } from "react";
-// import type { Movies } from "@/app/interface/users";
 import { Card } from "../ui/card";
-import Image from "next/image";
-// import { Heart } from "phosphor-react";
-//you have to call the Props first
-// interface Props {
-//   movie: Movies;
-// }
+import { Heart } from "phosphor-react";
+import { number } from "framer-motion";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 
@@ -21,12 +16,11 @@ type Movie = {
 };
 
 const Movies = () => {
-  // const [updateState, setUpdateState] = useState(false);
-  // const [hasInteracted, setHasInteracted] = useState(false);
-  //create an error message if the data in the api is being called
+  // create an error message if the data in the api is being called
   const [errorMessage, setErrorMessage] = useState("");
   const [movieList, setMovieList] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFavorite, setIsFavorite] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -61,7 +55,7 @@ const Movies = () => {
           return;
         }
         setMovieList(data.results.slice(0, 12));
-        // return;
+        return;
 
         // console.log("Fetched movies:", data);
       } catch (error) {
@@ -75,30 +69,25 @@ const Movies = () => {
     fetchMovies();
   }, []);
 
-  // const showState = () => {
-  //   setUpdateState((prev) => {
-  //     const newState = !prev;
-  //     return newState;
-  //   });
-  // };
+  const toggleRating = (movieId: number) => {
+    setIsFavorite((prev) => {
+      return prev.includes(movieId)
+        ? prev.filter((id) => id !== movieId) // remove if already favorited
+        : [...prev, movieId]; // add if not
+    });
+  };
 
-  // const toggleRating = () => {
-  //   setUpdateState((prev) => !prev);
-  //   setHasInteracted(true); // mark that the user interacted
-  // };
+  useEffect(() => {
+    console.log("Favorites updated:", isFavorite);
+  }, [isFavorite]);
 
-  // useEffect(() => {
-  //   if (!hasInteracted) return;
-  //   console.log(
-  //     `${movie.title} has been ${updateState ? "added to favorites" : "removed from favorites"}`
-  //   );
-  // }, [updateState, movie.title]); //  Proper dependency tracking
+  const changeStatus = (movieId: number) => {
+    return isFavorite.find((id) => movieId == id) ? true : false;
+  };
 
   return (
     <>
       <section className="mb-6 p-6 rounded-2xl shadow-md bg-white hover:shadow-xl transition-shadow duration-300">
-        <h1>All Movies</h1>
-        <hr />
         {isLoading ? <p>Loading...</p> : <p>{errorMessage}</p>}
         <Card className=" p-6 rounded-2xl shadow-md bg-white hover:shadow-xl transition-shadow duration-300">
           <h1 className="font-semibold">Most Popular Movies</h1>
@@ -108,17 +97,35 @@ const Movies = () => {
             {movieList.map((movie) => (
               <Card
                 key={movie.id}
-                className="p-6 rounded-2xl shadow-md bg-white hover:shadow-xl transition-shadow duration-300"
+                className="flex flex-col justify-between p-6 rounded-2xl shadow-md bg-white hover:shadow-xl transition-shadow duration-300 h-full"
               >
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  alt={movie.title}
-                  className="w-full h-auto rounded mb-4"
-                />
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {movie.title}
-                </h2>
-                <p className="text-gray-700 mb-4">{movie.overview}</p>
+                <div>
+                  <img
+                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                    alt={movie.title}
+                    className="w-full h-auto rounded mb-4"
+                  />
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    {movie.title}
+                  </h2>
+                  <p className="text-gray-700 mb-4">{movie.overview}</p>
+                </div>
+
+                <div
+                  className="flex items-center justify-between mt-auto pt-4 border-t cursor-pointer"
+                  onClick={() => toggleRating(movie.id)}
+                >
+                  <Heart
+                    weight="duotone"
+                    size={32}
+                    color={changeStatus(movie.id) ? "red" : "gray"}
+                  />
+                  <span className="text-sm ml-2">
+                    {changeStatus(movie.id)
+                      ? "Remove from Favorites"
+                      : "Add to Favorites"}
+                  </span>
+                </div>
               </Card>
             ))}
           </div>
