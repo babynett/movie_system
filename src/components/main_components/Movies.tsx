@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { Card } from "../ui/card";
 import { Heart } from "phosphor-react";
-import { number } from "framer-motion";
+import axios from "axios";
+import { title } from "process";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 
@@ -69,12 +70,27 @@ const Movies = () => {
     fetchMovies();
   }, []);
 
-  const toggleRating = (movieId: number) => {
+  const toggleRating = async (movie: {
+    id: number;
+    title: string;
+    poster_path: string;
+  }) => {
     setIsFavorite((prev) => {
-      return prev.includes(movieId)
-        ? prev.filter((id) => id !== movieId) // remove if already favorited
-        : [...prev, movieId]; // add if not
+      return prev.includes(movie.id)
+        ? prev.filter((id) => id !== movie.id) // remove if already favorited
+        : [...prev, movie.id]; // add if not
     });
+
+    try {
+      const response = await axios.post("api/favorites", {
+        movieId: movie.id,
+        title: movie.title,
+        image: movie.poster_path,
+      });
+      console.log(response.data.message);
+    } catch (error) {
+      console.log("heh error", error);
+    }
   };
 
   useEffect(() => {
@@ -113,7 +129,7 @@ const Movies = () => {
 
                 <div
                   className="flex items-center justify-between mt-auto pt-4 border-t cursor-pointer"
-                  onClick={() => toggleRating(movie.id)}
+                  onClick={() => toggleRating(movie)}
                 >
                   <Heart
                     weight="duotone"

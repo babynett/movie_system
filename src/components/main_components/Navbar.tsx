@@ -65,7 +65,9 @@ export default function NavigationMenuDemo() {
         </NavigationMenuItem>
 
         <NavigationMenuItem>
-          <NavigationMenuTrigger>My Favorites</NavigationMenuTrigger>
+          <NavigationMenuTrigger>
+            <Link href="/recommended">My Favorites</Link>
+          </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[200px] gap-4">
               <li>

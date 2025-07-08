@@ -1,28 +1,36 @@
-const { MongoClient, ServerApiVersion } = require("mongodb");
+// lib/mongodb.ts (or wherever you store helpers)
+import { MongoClient, ServerApiVersion } from "mongodb";
+
 const uri =
   "mongodb+srv://eyaftorreta25:LHahAkosjNB46QC3@mongopractice.rzme5ds.mongodb.net/?retryWrites=true&w=majority&appName=mongopractice";
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
+if (!uri) throw new Error("Please define your MongoDB URI");
+
+const options = {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
   },
-});
+};
 
-async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
+let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
+
+// Reuse client in dev (Next.js hot reload)
+declare global {
+  var _mongoClientPromise: Promise<MongoClient>;
 }
-run().catch(console.dir);
+
+if (process.env.NODE_ENV === "development") {
+  if (!global._mongoClientPromise) {
+    client = new MongoClient(uri, options);
+    global._mongoClientPromise = client.connect();
+  }
+  clientPromise = global._mongoClientPromise;
+} else {
+  client = new MongoClient(uri, options);
+  clientPromise = client.connect();
+}
+
+export default clientPromise;
