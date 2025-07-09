@@ -3,25 +3,23 @@
 import { useEffect, useState } from "react";
 import { Card } from "../ui/card";
 import { Heart } from "phosphor-react";
-import axios from "axios";
-import { title } from "process";
-
-const API_BASE_URL = "https://api.themoviedb.org/3";
+import { useFavorites } from "@/app/context/FavoritesContext";
 
 type Movie = {
   id: number;
   title: string;
   overview: string;
   poster_path: string;
-  // add other properties if needed
 };
+
+const API_BASE_URL = "https://api.themoviedb.org/3";
 
 const Movies = () => {
   // create an error message if the data in the api is being called
   const [errorMessage, setErrorMessage] = useState("");
   const [movieList, setMovieList] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isFavorite, setIsFavorite] = useState<number[]>([]);
+  const { isFavorite, toggleRating } = useFavorites();
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -70,35 +68,8 @@ const Movies = () => {
     fetchMovies();
   }, []);
 
-  const toggleRating = async (movie: {
-    id: number;
-    title: string;
-    poster_path: string;
-  }) => {
-    setIsFavorite((prev) => {
-      return prev.includes(movie.id)
-        ? prev.filter((id) => id !== movie.id) // remove if already favorited
-        : [...prev, movie.id]; // add if not
-    });
-
-    try {
-      const response = await axios.post("api/favorites", {
-        movieId: movie.id,
-        title: movie.title,
-        image: movie.poster_path,
-      });
-      console.log(response.data.message);
-    } catch (error) {
-      console.log("heh error", error);
-    }
-  };
-
-  useEffect(() => {
-    console.log("Favorites updated:", isFavorite);
-  }, [isFavorite]);
-
   const changeStatus = (movieId: number) => {
-    return isFavorite.find((id) => movieId == id) ? true : false;
+    return isFavorite.find((movie) => movie.id === movieId) ? true : false;
   };
 
   return (
