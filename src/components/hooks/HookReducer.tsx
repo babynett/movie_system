@@ -1,29 +1,25 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useReducer } from "react";
 
-interface State {
-  count: number;
-}
+type Action = {
+  color: string;
+};
 
-type Action =
-  | { type: "increment" }
-  | { type: "decrement" }
-  | { type: "multiply" }
-  | { type: "decreaseFifty" };
-
-const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case "increment":
-      return { count: state.count + 1 };
-    case "decrement":
-      return { count: state.count - 1 };
-    case "multiply":
-      return { count: state.count * 2 };
-    case "decreaseFifty":
-      return { count: state.count - 50 };
+const colorChange = (color: string, action: Action): string => {
+  switch (action.color) {
+    case "pink":
+      return "pink";
+    case "yellow":
+      return "yellow";
+    case "blue":
+      return "blue";
+    case "green":
+      return "green";
+    case "purple":
+      return "purple";
     default:
-      return state;
+      return "";
   }
 };
 
@@ -31,21 +27,46 @@ const HookReducer = () => {
   //similar to useState
   // const [isCount, setIsCount] = useState(0) => isCount is the variable where we will place the value and setIsCount will set the value
   //for useReducer we will use state, dispatch
-  const [state, dispatch] = useReducer(reducer, { count: 0 }); //reducer is the function that will have different types
+  const [isColor, isColorDispatch] = useReducer(colorChange, "");
+  const [input, setInput] = useState("");
 
   return (
     <>
-      <div className="flex justify-center items-center h-[40rem] bg-[#FFF2EB]">
+      <div className="flex justify-evenly items-center h-[40rem] bg-[#FFF2EB]">
         <div className="flex flex-col items-center gap-5">
-          <p>Count: {state.count}</p>
+          <h1>Choose any from the colors below :</h1>
+          <ul>
+            <li>Pink</li>
+            <li>Yellow</li>
+            <li>Blue</li>
+            <li>Green</li>
+            <li>Purple</li>
+          </ul>
           <div className="flex gap-5">
-            <button onClick={() => dispatch({ type: "increment" })}>+</button>
-            <button onClick={() => dispatch({ type: "decrement" })}>-</button>
-            <button onClick={() => dispatch({ type: "multiply" })}>*</button>
-            <button onClick={() => dispatch({ type: "decreaseFifty" })}>
-              -50
+            <input
+              type="text"
+              placeholder="Choose from colors"
+              className="border-black border p-4 rounded-md"
+              onChange={(e) => {
+                setInput(e.target.value);
+              }}
+            />
+            <button
+              onClick={() => {
+                isColorDispatch({ color: input });
+              }}
+            >
+              Submit
             </button>
           </div>
+        </div>
+        <div>
+          <h1>Box will change color</h1>
+          <br />
+          <div
+            className="border border-black p-20 rounded-md"
+            style={{ backgroundColor: isColor }}
+          ></div>
         </div>
       </div>
     </>
