@@ -1,7 +1,16 @@
 // next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {},
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "image.tmdb.org",
+        port: "",
+        pathname: "/t/p/**",
+      },
+    ],
+  },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

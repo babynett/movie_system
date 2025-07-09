@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react";
+import { CircleCheckIcon } from "lucide-react";
+import Image from "next/image";
 
 import {
   NavigationMenu,
@@ -29,10 +30,12 @@ export default function NavigationMenuDemo() {
                     className="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-2 no-underline outline-hidden select-none focus:shadow-md"
                     href="/"
                   >
-                    <img
+                    <Image
                       src="/assets/pinggu.jpg"
                       alt="Placeholder"
                       className="w-full h-auto rounded mb-4"
+                      height={500}
+                      width={500}
                     />
                     {/* <div className="mt-4 mb-2 text-lg font-medium">
                       Web Logo
@@ -73,30 +76,38 @@ export default function NavigationMenuDemo() {
 
         <NavigationMenuItem>
           <NavigationMenuTrigger>
-            <Link href="/recommended">My Favorites</Link>
+            <Link href="/pages/favorites">My Favorites</Link>
           </NavigationMenuTrigger>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
+          <NavigationMenuTrigger>
+            <Link href="/pages/practicespace">Practice Space</Link>
+          </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[200px] gap-4">
               <li>
                 <NavigationMenuLink asChild>
-                  <Link href="#" className="flex-row items-center gap-2">
-                    <CircleHelpIcon />
-                    Backlog
+                  <Link
+                    href="/pages/practicespace"
+                    className="flex-row items-center gap-2"
+                  >
+                    <CircleCheckIcon /> UseState
                   </Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
                   <Link href="#" className="flex-row items-center gap-2">
-                    <CircleIcon />
-                    To Do
+                    <CircleCheckIcon /> UseEffect
                   </Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
                   <Link href="#" className="flex-row items-center gap-2">
                     <CircleCheckIcon />
-                    Done
+                    UseContext
+                  </Link>
+                </NavigationMenuLink>
+                <NavigationMenuLink asChild>
+                  <Link href="#" className="flex-row items-center gap-2">
+                    <CircleCheckIcon /> UseReducer
                   </Link>
                 </NavigationMenuLink>
               </li>
