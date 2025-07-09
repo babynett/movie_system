@@ -18,25 +18,32 @@ export default function NavigationMenuDemo() {
     <NavigationMenu viewport={false}>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Home</NavigationMenuTrigger>
+          <NavigationMenuTrigger>
+            <Link href="/">Home</Link>
+          </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
                 <NavigationMenuLink asChild>
                   <Link
-                    className="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-6 no-underline outline-hidden select-none focus:shadow-md"
+                    className="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-2 no-underline outline-hidden select-none focus:shadow-md"
                     href="/"
                   >
-                    <div className="mt-4 mb-2 text-lg font-medium">
+                    <img
+                      src="/assets/pinggu.jpg"
+                      alt="Placeholder"
+                      className="w-full h-auto rounded mb-4"
+                    />
+                    {/* <div className="mt-4 mb-2 text-lg font-medium">
                       Web Logo
-                    </div>
+                    </div> */}
                     <p className="text-muted-foreground text-sm leading-tight">
-                      Beautifully designed components built with Tailwind CSS.
+                      cute pengguin
                     </p>
                   </Link>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/recommended" title="Recommended Movies">
+              <ListItem href="/" title="Recommended Movies">
                 Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut,
                 placeat dolore! Ratione iure reiciendis porro officia quae?
                 Veritatis assumenda nisi sequi inventore at quaerat et obcaecati
@@ -68,21 +75,6 @@ export default function NavigationMenuDemo() {
           <NavigationMenuTrigger>
             <Link href="/recommended">My Favorites</Link>
           </NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[200px] gap-4">
-              <li>
-                <NavigationMenuLink asChild>
-                  <Link href="#">IDK</Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link href="#">IDK</Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link href="#">IDK</Link>
-                </NavigationMenuLink>
-              </li>
-            </ul>
-          </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
