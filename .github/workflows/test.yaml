@@ -1,38 +1,23 @@
-name: Test PNPM Setup
-
+name: pnpm Example Workflow
 on:
   push:
-  pull_request:
-  workflow_dispatch:
 
 jobs:
-  test_pnpm_versions:
-    name: Test PNPM ${{ matrix.pnpm }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-
+  build:
+    runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
       matrix:
-        pnpm: [9.15.5]
-        os: [ubuntu-latest, macos-latest, windows-latest]
-
+        node-version: [20]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install PNPM ${{ matrix.pnpm }}
-        run: npm install -g pnpm@${{ matrix.pnpm }}
-
-      - name: Test: which pnpm
-        run: |
-          pnpm -v
-          pnpx -v
-
-      - name: Test: pnpm install
-        run: pnpm install
-
+    - uses: actions/checkout@v4
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+    - name: Install dependencies
+      run: pnpm install
