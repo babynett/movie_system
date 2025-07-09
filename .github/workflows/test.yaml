@@ -28,7 +28,7 @@ jobs:
       - name: Install PNPM ${{ matrix.pnpm }}
         run: npm install -g pnpm@${{ matrix.pnpm }}
 
-      - name: Test: which pnpm/pnpx
+      - name: Test: which pnpm
         run: |
           pnpm -v
           pnpx -v
