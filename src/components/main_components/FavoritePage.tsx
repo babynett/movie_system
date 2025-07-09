@@ -3,9 +3,10 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Heart, Star } from "phosphor-react";
 import { useFavorites } from "@/app/context/FavoritesContext";
+import Image from "next/image";
 
 const FavoritePage = () => {
-  const { isFavorite } = useFavorites(); // ✅ use favorites array from context
+  const { isFavorite } = useFavorites();
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -31,10 +32,12 @@ const FavoritePage = () => {
                 key={movie.id}
               >
                 <div>
-                  <img
+                  <Image
                     src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                     alt={movie.title}
                     className="w-full h-auto rounded mb-4"
+                    height={500}
+                    width={500}
                   />
                   <h2 className="text-lg font-bold text-card-foreground mb-2 line-clamp-2">
                     {movie.title}
