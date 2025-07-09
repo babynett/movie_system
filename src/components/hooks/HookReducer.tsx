@@ -2,10 +2,6 @@
 import React, { useState } from "react";
 import { useReducer } from "react";
 
-interface State {
-  color: string;
-}
-
 type Action = {
   color: string;
 };
