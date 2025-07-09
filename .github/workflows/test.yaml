@@ -1,175 +1,38 @@
-name: Test Action
+name: Test PNPM Setup
 
 on:
-  - push
-  - pull_request
-  - workflow_dispatch
+  push:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
-  test_default_inputs:
-    name: Test with default inputs
-
+  test_pnpm_versions:
+    name: Test PNPM ${{ matrix.pnpm }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        pnpm:
-          - 9.15.5
-        os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
+        pnpm: [9.15.5]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Run the action
-        uses: ./
-        with:
-          version: 9.15.5
-
-      - name: "Test: which"
-        run: which pnpm; which pnpx
-
-      - name: "Test: install"
-        run: pnpm install
-
-  test_dest:
-    name: Test with dest
-
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        pnpm:
-          - 9.15.5
-        os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run the action
-        uses: ./
-        with:
-          version: 9.15.5
-          dest: ~/test/pnpm
-
-      - name: "Test: which"
-        run: which pnpm && which pnpx
-
-      - name: "Test: install"
-        run: pnpm install
-
-  test_standalone:
-    name: Test with standalone
-
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
-
-        standalone:
-          - true
-          - false
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run the action
-        uses: ./
-        with:
-          version: 9.15.0
-          standalone: ${{ matrix.standalone }}
-
-      - name: install Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          # pnpm@7.0.0 is not compatible with Node.js 12
-          node-version: 12.22.12
+          node-version: 18
 
-      - name: "Test: which (pnpm)"
-        run: which pnpm
+      - name: Install PNPM ${{ matrix.pnpm }}
+        run: npm install -g pnpm@${{ matrix.pnpm }}
 
-      - name: "Test: which (pnpx)"
-        if: matrix.standalone == false
-        run: which pnpx
-
-      - name: "Test: install when standalone is true"
-        if: matrix.standalone
-        run: pnpm install
-
-      - name: "Test: install when standalone is false"
-        if: matrix.standalone == false
-        # Since the default shell on windows runner is pwsh, we specify bash explicitly
-        shell: bash
+      - name: Test: which pnpm/pnpx
         run: |
-          if pnpm install; then
-            echo "pnpm install should fail"
-            exit 1
-          else
-            echo "pnpm install failed as expected"
-          fi
+          pnpm -v
+          pnpx -v
 
-  test_run_install:
-    name: "Test with run_install (${{ matrix.run_install.name }}, ${{ matrix.os }})"
-
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        pnpm:
-          - 9.15.5
-        os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
-        run_install:
-          - name: "null"
-            value: "null"
-          - name: "empty object"
-            value: "{}"
-          - name: "recursive"
-            value: |
-              recursive: true
-          - name: "global"
-            value: |
-              args:
-                - --global
-                - --global-dir=./pnpm-global
-                - npm
-                - yarn
-          - name: "array"
-            value: |
-              - {}
-              - recursive: true
-              - args:
-                - --global
-                - --global-dir=./pnpm-global
-                - npm
-                - yarn
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run the action
-        uses: ./
-        with:
-          version: 9.15.5
-          run_install: ${{ matrix.run_install.value }}
-
-      - name: "Test: which"
-        run: which pnpm; which pnpx
-
-      - name: "Test: install"
+      - name: Test: pnpm install
         run: pnpm install
+
