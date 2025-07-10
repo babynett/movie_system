@@ -8,16 +8,8 @@ type Action = {
 
 const colorChange = (color: string, action: Action): string => {
   switch (action.color) {
-    case "pink":
-      return "pink";
-    case "yellow":
-      return "yellow";
-    case "blue":
-      return "blue";
-    case "green":
-      return "green";
-    case "purple":
-      return "purple";
+    case action.color:
+      return action.color;
     default:
       return "";
   }
@@ -34,18 +26,12 @@ const HookReducer = () => {
     <>
       <div className="flex justify-evenly items-center h-[40rem] bg-[#FFF2EB]">
         <div className="flex flex-col items-center gap-5">
-          <h1>Choose any from the colors below :</h1>
-          <ul>
-            <li>Pink</li>
-            <li>Yellow</li>
-            <li>Blue</li>
-            <li>Green</li>
-            <li>Purple</li>
-          </ul>
+          <h1>Color Change</h1>
+
           <div className="flex gap-5">
             <input
               type="text"
-              placeholder="Choose from colors"
+              placeholder="Type any color hex"
               className="border-black border p-4 rounded-md"
               onChange={(e) => {
                 setInput(e.target.value);
@@ -53,7 +39,7 @@ const HookReducer = () => {
             />
             <button
               onClick={() => {
-                isColorDispatch({ color: input });
+                isColorDispatch({ color: input }); //object
               }}
             >
               Submit
