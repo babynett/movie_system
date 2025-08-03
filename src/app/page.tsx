@@ -1,14 +1,16 @@
 import React from "react";
 import Movies from "../components/main_components/Movies";
-// import movies from "./interface/users";
 import SparkleTitle from "../components/designFont/SparkleTitle";
+import ProtectedRoute from "../components/auth/ProtectedRoute";
 
 function page() {
   return (
-    <>
-      <SparkleTitle />
-      <Movies />
-    </>
+    <ProtectedRoute>
+      <>
+        <SparkleTitle />
+        <Movies />
+      </>
+    </ProtectedRoute>
   );
 }
 
