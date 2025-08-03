@@ -2,8 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CircleCheckIcon } from "lucide-react";
+import { ChatCircle, User, SignOut, Heart } from "phosphor-react";
 import Image from "next/image";
+import { useAuth } from "@/app/context/AuthContext";
 
 import {
   NavigationMenu,
@@ -15,13 +16,13 @@ import {
 } from "../ui/navigation-menu";
 
 export default function NavigationMenuDemo() {
+  const { user, isAuthenticated, logout } = useAuth();
+
   return (
     <NavigationMenu viewport={false}>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>
-            <Link href="/">Home</Link>
-          </NavigationMenuTrigger>
+          <NavigationMenuTrigger>Home</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
@@ -37,9 +38,6 @@ export default function NavigationMenuDemo() {
                       height={500}
                       width={500}
                     />
-                    {/* <div className="mt-4 mb-2 text-lg font-medium">
-                      Web Logo
-                    </div> */}
                     <p className="text-muted-foreground text-sm leading-tight">
                       cute pengguin
                     </p>
@@ -47,73 +45,94 @@ export default function NavigationMenuDemo() {
                 </NavigationMenuLink>
               </li>
               <ListItem href="/" title="Recommended Movies">
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut,
-                placeat dolore! Ratione iure reiciendis porro officia quae?
-                Veritatis assumenda nisi sequi inventore at quaerat et obcaecati
-                laudantium! Aperiam, pariatur molestiae.
+                Discover personalized movie recommendations based on your
+                preferences
               </ListItem>
-              <ListItem
-                href="/docs/installation"
-                title="Movies you might also like"
-              >
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut,
-                placeat dolore! Ratione iure reiciendis porro officia quae?
-                Veritatis assumenda nisi sequi inventore at quaerat et obcaecati
-                laudantium! Aperiam, pariatur molestiae.{" "}
+              <ListItem href="/views/favorites" title="My Favorites">
+                View and manage your favorite movies collection
               </ListItem>
-              <ListItem
-                href="/docs/primitives/typography"
-                title="People's Reviews"
-              >
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut,
-                placeat dolore! Ratione iure reiciendis porro officia quae?
-                Veritatis assumenda nisi sequi inventore at quaerat et obcaecati
-                laudantium! Aperiam, pariatur molestiae.{" "}
+              <ListItem href="/views/chat" title="Community Chat">
+                Connect with other movie enthusiasts in our community chat
               </ListItem>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
 
         <NavigationMenuItem>
-          <NavigationMenuTrigger>
-            <Link href="/pages/favorites">My Favorites</Link>
-          </NavigationMenuTrigger>
+          <NavigationMenuLink asChild>
+            <Link href="/views/favorites" className="flex items-center gap-2">
+              <Heart size={16} />
+              Favorites
+            </Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
+
         <NavigationMenuItem>
-          <NavigationMenuTrigger>
-            <Link href="/pages/practicespace">Practice Space</Link>
-          </NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[200px] gap-4">
-              <li>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/pages/practicespace"
-                    className="flex-row items-center gap-2"
-                  >
-                    <CircleCheckIcon /> UseState
-                  </Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link href="#" className="flex-row items-center gap-2">
-                    <CircleCheckIcon /> UseEffect
-                  </Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link href="#" className="flex-row items-center gap-2">
-                    <CircleCheckIcon />
-                    UseContext
-                  </Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link href="#" className="flex-row items-center gap-2">
-                    <CircleCheckIcon /> UseReducer
-                  </Link>
-                </NavigationMenuLink>
-              </li>
-            </ul>
-          </NavigationMenuContent>
+          <NavigationMenuLink asChild>
+            <Link href="/views/chat" className="flex items-center gap-2">
+              <ChatCircle size={16} />
+              Chat
+            </Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
+
+        {isAuthenticated ? (
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>
+              <div className="flex items-center gap-2">
+                <User size={16} />
+                {user?.username || "Account"}
+              </div>
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid w-[200px] gap-4 p-4">
+                <li>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="/views/profile"
+                      className="flex items-center gap-2"
+                    >
+                      <User size={16} />
+                      Profile
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
+                <li>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="/views/friends"
+                      className="flex items-center gap-2"
+                    >
+                      <User size={16} />
+                      Friends
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
+                <li>
+                  <button
+                    onClick={logout}
+                    className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    <SignOut size={16} />
+                    Sign Out
+                  </button>
+                </li>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        ) : (
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <Link
+                href="/views/auth/signin"
+                className="flex items-center gap-2"
+              >
+                <User size={16} />
+                Sign In
+              </Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        )}
       </NavigationMenuList>
     </NavigationMenu>
   );
@@ -137,4 +156,49 @@ function ListItem({
       </NavigationMenuLink>
     </li>
   );
+}
+
+//comments
+{
+  /* <NavigationMenuItem>
+<NavigationMenuTrigger>
+  Practice Space 
+</NavigationMenuTrigger>
+<NavigationMenuContent>
+  <ul className="grid w-[200px] gap-4">
+    <li>
+      <NavigationMenuLink asChild>
+        <Link
+          href="/views/practicespace"
+          className="flex items-center gap-2"
+        >
+          <CircleCheckIcon /> UseState
+        </Link>
+      </NavigationMenuLink>
+    </li>
+    <li>
+      <NavigationMenuLink asChild>
+        <Link href="#" className="flex items-center gap-2">
+          <CircleCheckIcon /> UseEffect
+        </Link>
+      </NavigationMenuLink>
+    </li>
+    <li>
+      <NavigationMenuLink asChild>
+        <Link href="#" className="flex items-center gap-2">
+          <CircleCheckIcon />
+          UseContext
+        </Link>
+      </NavigationMenuLink>
+    </li>
+    <li>
+      <NavigationMenuLink asChild>
+        <Link href="#" className="flex items-center gap-2">
+          <CircleCheckIcon /> UseReducer
+        </Link>
+      </NavigationMenuLink>
+    </li>
+  </ul>
+</NavigationMenuContent>
+</NavigationMenuItem> */
 }
