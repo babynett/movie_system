@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Movie {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  releaseDate DateTime
+  duration    Int // duration in minutes
+  genre       String[]
+  rating      Float? // rating out of 10
+  posterUrl   String?
+  trailerUrl  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  reviews   Review[]
+  showtimes Showtime[]
+
+  @@map("movies")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  reviews  Review[]
+  bookings Booking[]
+
+  @@map("users")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int // rating 1-5
+  comment   String?
+  movieId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  // Relations
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([movieId, userId]) // One review per user per movie
+  @@map("reviews")
+}
+
+model Theater {
+  id       String @id @default(cuid())
+  name     String
+  location String
+  capacity Int
+
+  // Relations
+  showtimes Showtime[]
+
+  @@map("theaters")
+}
+
+model Showtime {
+  id        String   @id @default(cuid())
+  startTime DateTime
+  endTime   DateTime
+  price     Float
+  movieId   String
+  theaterId String
+
+  // Relations
+  movie    Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  theater  Theater   @relation(fields: [theaterId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@map("showtimes")
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  seats      String[] // Array of seat numbers
+  totalPrice Float
+  status     BookingStatus @default(PENDING)
+  userId     String
+  showtimeId String
+  createdAt  DateTime      @default(now())
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  showtime Showtime @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
+
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
