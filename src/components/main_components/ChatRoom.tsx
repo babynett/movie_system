@@ -1,6 +1,22 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { ChatCircle, PaperPlaneTilt, User, Users } from "phosphor-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useAuth } from "@/app/context/AuthContext";
+import { useSocket } from "./chat/useSocket";
+import { ChatSidebar } from "./chat/ChatSidebar";
+import { ChatHeader } from "./chat/ChatHeader";
+import { MessageDisplay } from "./chat/MessageDisplay";
+import { MessageInput } from "./chat/MessageInput";
+import { useSSRSafeRef } from "@/lib/ssr-safe-hooks";
+
+type ChatRoom = {
+  id: string;
+  name: string;
+  type: "global" | "private";
+  description?: string;
+  participants?: number;
+  lastMessage?: string;
+  isActive?: boolean;
+};
 
 type Message = {
   id: string;
@@ -9,61 +25,199 @@ type Message = {
   content: string;
   timestamp: Date;
   isSystem?: boolean;
+  roomId: string;
 };
 
-const ChatRoom: React.FC = () => {
+const ChatRoomComponent: React.FC = () => {
+  const { user } = useAuth();
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [currentUser] = useState({
-    id: "user_" + Math.random().toString(36).substr(2, 9),
-    username: "User_" + Math.floor(Math.random() * 1000),
-  });
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [activeRoom, setActiveRoom] = useState<string>("global");
+  const [showRoomSidebar, setShowRoomSidebar] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  
+  // Use SSR-safe refs
+  const messagesEndRef = useSSRSafeRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useSSRSafeRef<NodeJS.Timeout | null>(null);
 
+  const chatRooms: ChatRoom[] = useMemo(() => [
+    {
+      id: "global",
+      name: "Global Chat",
+      type: "global",
+      description: "Discuss movies with everyone",
+      participants: 1247,
+      isActive: true
+    },
+    {
+      id: "action",
+      name: "Action Movies",
+      type: "global",
+      description: "Explosions and adrenaline",
+      participants: 342,
+    },
+    {
+      id: "horror",
+      name: "Horror Films",
+      type: "global",
+      description: "Things that go bump in the night",
+      participants: 156,
+    },
+    {
+      id: "classics",
+      name: "Classic Cinema",
+      type: "global",
+      description: "Timeless masterpieces",
+      participants: 89,
+    }
+  ], []);
+
+  // Socket connection
+  const { socket, sendMessage: sendSocketMessage, isConnected, onlineUsers } = useSocket(
+    process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001',
+    activeRoom,
+    user
+  );
+
+  // Use actual socket connection status
+  const isConnectedForTesting = isConnected;
+
+  // Socket event listeners
   useEffect(() => {
-    // Load messages from localStorage
-    const savedMessages = localStorage.getItem("chat_messages");
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages));
-    } else {
-      // Add welcome message
-      const welcomeMessage: Message = {
-        id: "welcome",
-        userId: "system",
-        username: "System",
-        content:
-          "Welcome to the Movie Chat! Share your thoughts about movies with other users.",
+    if (!socket) return;
+
+    // Listen for new messages
+    const handleNewMessage = (message: Message) => {
+      setMessages(prev => [...prev, {
+        ...message,
+        timestamp: new Date(message.timestamp)
+      }]);
+    };
+
+    // Listen for message history when joining a room
+    const handleMessageHistory = (messageHistory: Message[]) => {
+      setMessages(messageHistory.map(msg => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp)
+      })));
+    };
+
+    // Listen for typing indicators
+    const handleUserTyping = (data: { username: string, isTyping: boolean }) => {
+      if (data.username === user?.username) return;
+      
+      setTypingUsers(prev => {
+        if (data.isTyping) {
+          return prev.includes(data.username) ? prev : [...prev, data.username];
+        } else {
+          return prev.filter(username => username !== data.username);
+        }
+      });
+    };
+
+    // Listen for user join/leave notifications
+    const handleUserJoined = (data: { username: string }) => {
+      const systemMessage: Message = {
+        id: `system-${Date.now()}`,
+        userId: 'system',
+        username: 'System',
+        content: `${data.username} joined the chat`,
         timestamp: new Date(),
         isSystem: true,
+        roomId: activeRoom
       };
-      setMessages([welcomeMessage]);
-      localStorage.setItem("chat_messages", JSON.stringify([welcomeMessage]));
-    }
-  }, []);
+      setMessages(prev => [...prev, systemMessage]);
+    };
 
+    const handleUserLeft = (data: { username: string }) => {
+      const systemMessage: Message = {
+        id: `system-${Date.now()}`,
+        userId: 'system',
+        username: 'System',
+        content: `${data.username} left the chat`,
+        timestamp: new Date(),
+        isSystem: true,
+        roomId: activeRoom
+      };
+      setMessages(prev => [...prev, systemMessage]);
+    };
+
+    socket.on('new_message', handleNewMessage);
+    socket.on('message_history', handleMessageHistory);
+    socket.on('user_typing', handleUserTyping);
+    socket.on('user_joined', handleUserJoined);
+    socket.on('user_left', handleUserLeft);
+
+    return () => {
+      socket.off('new_message', handleNewMessage);
+      socket.off('message_history', handleMessageHistory);
+      socket.off('user_typing', handleUserTyping);
+      socket.off('user_joined', handleUserJoined);
+      socket.off('user_left', handleUserLeft);
+    };
+  }, [socket, user, activeRoom]);
+
+  // Clear messages when changing rooms
   useEffect(() => {
-    // Scroll to bottom when new messages arrive
+    setMessages([]);
+    setTypingUsers([]);
+  }, [activeRoom]);
+
+  // Scroll to bottom when new messages arrive
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
-  const saveMessagesToStorage = (updatedMessages: Message[]) => {
-    localStorage.setItem("chat_messages", JSON.stringify(updatedMessages));
+  // Handle typing indicator
+  const handleTyping = () => {
+    if (!isTyping && socket) {
+      setIsTyping(true);
+      socket.emit('typing', { roomId: activeRoom, isTyping: true });
+    }
+
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set new timeout
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      if (socket) {
+        socket.emit('typing', { roomId: activeRoom, isTyping: false });
+      }
+    }, 1000);
   };
 
   const sendMessage = () => {
-    if (newMessage.trim()) {
+    if (newMessage.trim() && user) {
       const message: Message = {
-        id: Date.now().toString(),
-        userId: currentUser.id,
-        username: currentUser.username,
+        id: `${user.id}-${Date.now()}`,
+        userId: user.id,
+        username: user.username,
         content: newMessage.trim(),
         timestamp: new Date(),
+        roomId: activeRoom,
       };
 
-      const updatedMessages = [...messages, message];
-      setMessages(updatedMessages);
-      saveMessagesToStorage(updatedMessages);
+      // Try to send via Socket.io first, fallback to local
+      if (socket && isConnected) {
+        sendSocketMessage(message);
+      } else {
+        // Fallback: add message locally if socket not connected
+        setMessages(prev => [...prev, message]);
+      }
+      
       setNewMessage("");
+
+      // Clear typing indicator
+      if (isTyping && socket) {
+        setIsTyping(false);
+        socket.emit('typing', { roomId: activeRoom, isTyping: false });
+      }
     }
   };
 
@@ -74,100 +228,105 @@ const ChatRoom: React.FC = () => {
     }
   };
 
-  const formatTime = (date: Date) => {
-    return new Date(date).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNewMessage(e.target.value);
+    handleTyping();
   };
 
-  const isOwnMessage = (message: Message) => {
-    return message.userId === currentUser.id;
+  const handleRoomSelect = (roomId: string) => {
+    setActiveRoom(roomId);
   };
+
+  const handleToggleSidebar = () => {
+    setShowRoomSidebar(!showRoomSidebar);
+  };
+
+  const currentRoom = chatRooms.find(room => room.id === activeRoom);
+
+  // Add a test message for debugging - moved before conditional return
+  useEffect(() => {
+    if (messages.length === 0 && user) {
+      const testMessage: Message = {
+        id: 'test-1',
+        userId: 'system',
+        username: 'System',
+        content: 'Welcome to the chat! You can start typing now.',
+        timestamp: new Date(),
+        isSystem: true,
+        roomId: activeRoom
+      };
+      setMessages([testMessage]);
+    }
+  }, [messages.length, user, activeRoom]);
+
+  // Show login message if user is not authenticated
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-foreground mb-2">Please Log In</h2>
+          <p className="text-muted-foreground">You need to be logged in to use the chat.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Add connection status indicator
+  const connectionStatus = (
+    <div className={`fixed top-4 right-4 px-3 py-1 rounded-full text-xs font-medium ${
+      isConnected ? 'bg-green-500 text-purple-900' : 'bg-red-500 text-purple-900'
+    }`}>
+      {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
+    </div>
+  );
 
   return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-background">
-        <div className="flex items-center gap-2">
-          <ChatCircle size={24} className="text-primary" />
-          <h2 className="text-xl font-bold text-foreground">Movie Chat</h2>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Users size={16} />
-          <span>Online</span>
-        </div>
-      </div>
+    <div className="flex h-full bg-gradient-to-br from-background to-muted/20">
+      {connectionStatus}
+      
+      {/* Sidebar */}
+      {showRoomSidebar && (
+        <ChatSidebar
+          rooms={chatRooms}
+          activeRoom={activeRoom}
+          onRoomSelect={handleRoomSelect}
+        />
+      )}
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/20">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${isOwnMessage(message) ? "justify-end" : "justify-start"}`}
-          >
-            <div
-              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                message.isSystem
-                  ? "bg-primary/10 text-primary mx-auto"
-                  : isOwnMessage(message)
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-background border border-border"
-              }`}
-            >
-              {!message.isSystem && !isOwnMessage(message) && (
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
-                    <User size={12} className="text-primary" />
-                  </div>
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {message.username}
-                  </span>
-                </div>
-              )}
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-              <p className="text-xs opacity-70 mt-1">
-                {formatTime(message.timestamp)}
-              </p>
-            </div>
-          </div>
-        ))}
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Chat Header */}
+        <ChatHeader
+          currentRoom={currentRoom}
+          isConnected={isConnectedForTesting}
+          onlineUsers={onlineUsers}
+          showRoomSidebar={showRoomSidebar}
+          onToggleSidebar={handleToggleSidebar}
+        />
+
+        {/* Messages */}
+        <MessageDisplay
+          messages={messages}
+          currentUserId={user?.id}
+          typingUsers={typingUsers}
+        />
+        
         <div ref={messagesEndRef} />
-      </div>
 
-      {/* Input */}
-      <div className="p-4 border-t border-border bg-background">
-        <div className="flex items-end gap-3">
-          <div className="flex-1">
-            <textarea
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type your message..."
-              className="w-full p-3 border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              rows={1}
-              maxLength={500}
-            />
-          </div>
-          <button
-            onClick={sendMessage}
-            disabled={!newMessage.trim()}
-            className="p-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <PaperPlaneTilt size={20} />
-          </button>
-        </div>
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-xs text-muted-foreground">
-            {newMessage.length}/500 characters
-          </span>
-          <span className="text-xs text-muted-foreground">
-            Press Enter to send, Shift+Enter for new line
-          </span>
+        {/* Message Input */}
+        <div className="p-4 border-t border-border/50 bg-card/30 backdrop-blur-sm">
+          <MessageInput
+            value={newMessage}
+            onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
+            onSend={sendMessage}
+            placeholder={`Message ${currentRoom?.name}...`}
+            disabled={!isConnectedForTesting}
+          />
         </div>
       </div>
     </div>
   );
 };
 
-export default ChatRoom;
+export default ChatRoomComponent;

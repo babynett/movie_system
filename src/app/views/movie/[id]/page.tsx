@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Star, Calendar, Clock, Play, Heart } from "phosphor-react";
@@ -52,13 +52,7 @@ const MovieDetailPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>("details");
   const { isFavorite, toggleRating } = useFavorites();
 
-  useEffect(() => {
-    if (movieId) {
-      fetchMovieDetails();
-    }
-  }, [movieId]);
-
-  const fetchMovieDetails = async () => {
+  const fetchMovieDetails = useCallback(async () => {
     setIsLoading(true);
     setError("");
     try {
@@ -80,7 +74,13 @@ const MovieDetailPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [movieId]);
+
+  useEffect(() => {
+    if (movieId) {
+      fetchMovieDetails();
+    }
+  }, [movieId, fetchMovieDetails]);
 
   const formatRuntime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);

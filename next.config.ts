@@ -11,6 +11,11 @@ const nextConfig = {
       },
     ],
   },
+  // Configure SSR behavior
+  compiler: {
+    // Disable some optimizations that might cause SSR issues
+    removeConsole: false,
+  },
 };
 
 export default nextConfig;
