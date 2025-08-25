@@ -18,7 +18,7 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
     return null;
   }
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 export async function getUserFromToken(token: string) {
   try {
     const payload = await verifyToken(token);

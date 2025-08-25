@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { Card } from "@/components/ui/card";
-import { Eye, EyeSlash, Envelope, Lock } from "phosphor-react";
+import { Eye, EyeSlash, Envelope, Lock, FilmStrip as Film, ArrowLeft } from "phosphor-react";
 import Link from "next/link";
 
 const SigninPage = () => {
@@ -76,34 +76,56 @@ const SigninPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Card className="p-8 shadow-xl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500/20 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative w-full max-w-md z-10">
+        {/* Back to Landing Button */}
+        <Link
+          href="/landing"
+          className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-6 transition-colors duration-200"
+        >
+          <ArrowLeft size={20} />
+          Back to Home
+        </Link>
+
+        <Card className="p-8 bg-white/10 backdrop-blur-lg border border-white/20 shadow-2xl">
+          {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <Film size={28} className="text-white" />
+              </div>
+              <span className="text-2xl font-bold text-white">Sinemo</span>
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-2">
               Welcome Back
             </h1>
-            <p className="text-gray-600">Sign in to your account</p>
+            <p className="text-gray-300">Sign in to continue your movie journey</p>
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600 text-sm">{error}</p>
+            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg backdrop-blur-sm">
+              <p className="text-red-200 text-sm">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-200 mb-2"
               >
-                Email
+                Email Address
               </label>
               <div className="relative">
                 <Envelope
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
                   size={20}
                 />
                 <input
@@ -112,14 +134,14 @@ const SigninPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.email ? "border-red-300" : "border-gray-300"
+                  className={`w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-200 ${
+                    errors.email ? "border-red-500/50 ring-red-500/20" : ""
                   }`}
                   placeholder="Enter your email"
                 />
               </div>
               {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                <p className="text-red-400 text-sm mt-2">{errors.email}</p>
               )}
             </div>
 
@@ -127,13 +149,13 @@ const SigninPage = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-200 mb-2"
               >
                 Password
               </label>
               <div className="relative">
                 <Lock
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
                   size={20}
                 />
                 <input
@@ -142,41 +164,66 @@ const SigninPage = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.password ? "border-red-300" : "border-gray-300"
+                  className={`w-full pl-12 pr-14 py-4 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-200 ${
+                    errors.password ? "border-red-500/50 ring-red-500/20" : ""
                   }`}
                   placeholder="Enter your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors duration-200"
                 >
                   {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                <p className="text-red-400 text-sm mt-2">{errors.password}</p>
               )}
+            </div>
+
+            {/* Forgot Password */}
+            <div className="text-right">
+              <Link
+                href="#"
+                className="text-sm text-purple-300 hover:text-purple-200 transition-colors duration-200"
+              >
+                Forgot password?
+              </Link>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 px-6 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
             >
-              {isLoading ? "Signing In..." : "Sign In"}
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  Signing In...
+                </div>
+              ) : (
+                "Sign In"
+              )}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Don`&apos`t have an account?
+          {/* Divider */}
+          <div className="my-8 flex items-center">
+            <div className="flex-1 border-t border-white/20"></div>
+            <span className="px-4 text-gray-400 text-sm">or</span>
+            <div className="flex-1 border-t border-white/20"></div>
+          </div>
+
+          {/* Sign Up Link */}
+          <div className="text-center">
+            <p className="text-gray-300">
+              Don&apos;t have an account?{" "}
               <Link
                 href="/views/auth/signup"
-                className="text-blue-600 hover:text-blue-700 font-medium"
+                className="text-purple-300 hover:text-purple-200 font-semibold transition-colors duration-200"
               >
-                Sign up here
+                Create one here
               </Link>
             </p>
           </div>
