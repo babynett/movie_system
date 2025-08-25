@@ -23,13 +23,6 @@ export default function NotFound() {
           >
             Go to home page
           </Link>
-          
-          <button
-            onClick={() => window.history.back()}
-            className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors duration-200"
-          >
-            Go back
-          </button>
         </div>
       </div>
     </div>
